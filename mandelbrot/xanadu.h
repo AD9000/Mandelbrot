@@ -6,7 +6,6 @@
  * The mandelbrot set paired with the royal magenta!
  */
 
-// Replace these three values with your own chosen numbers
 #define CENTER_X -0.832313
 #define CENTER_Y 0.2065115
 #define ZOOM 16
