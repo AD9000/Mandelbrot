@@ -1,16 +1,5 @@
-
 // Assignment 1 Mandelbrot: Mandelbrot generation functions
-// mandelbrot.c
-//
-// Completed by
-// Atharv Damle (z5232949)
-//
-// Modified on 27-08-2018
-// Tutor's name (dayHH-lab)
-//
-// Version 1.0.2: Fix minor typos in comments.
-// Version 1.0.1: Fix issues with spacing and indentation.
-// Version 1.0.0: Assignment released.
+// Author: Atharv Damle
 
 #include <stdio.h>
 #include <math.h>
@@ -39,22 +28,14 @@ static complex add(complex a, complex b);
 // of the tile and need to be converted into a complex number.
 // 'zoom' is an integer representing the zoom level for the tile.
 
+// serveMandelbrot code was not written by Atharv Damle and has to be found externally.
 
 void serveMandelbrot(
     struct pixel pixels[TILE_SIZE][TILE_SIZE],
     char *requestPath
-) {
-    complex center = {0.0, 0.0};
-    int z = 7;
+) 
+{
 
-    sscanf(
-        requestPath,
-        "/mandelbrot/2/%d/%lf/%lf.bmp",
-        &z, &center.re, &center.im
-    );
-
-    // Use drawMandelbrot to draw the image.
-    drawMandelbrot(pixels, center, z);
 }
 
 // Draw a single Mandelbrot tile, by calculating and 
@@ -102,7 +83,7 @@ void drawMandelbrot(
         num.re = center.re - (MAX_SIZE/2.0 - (double)column)/zoom;
         
         //Iterate over all rows
-        while (row < 512)
+        while (row < MAX_SIZE)
         {
             //Similar to calculating the real part
             //calculate imaginary part of num
@@ -201,7 +182,8 @@ static complex add(complex a, complex b) {
     return c;
 }
 
-//SPARE FUNCTIONS (FOR DEVELOPERS)
+//SPARE FUNCTIONS (FOR BETTER UNDERSTANDING THE MANDELBROT CODE)
+// Note: Ascii-brot uses the mandelbrot code and makes the same pattern using '*' and ' '
 /*
 //NEW (EFFICIENT) TEST FUNCTION FOR ESCAPESTEPS -> Ascii-brot
 //DOES NOT WORK FOR DRAW MANDELBROT
