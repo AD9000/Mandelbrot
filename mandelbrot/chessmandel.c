@@ -1,0 +1,214 @@
+// Draw a 512x512 chessboard
+// By Atharv Damle (z5232949)
+// By ... (z0000000)
+// Written on 2018-08-??
+// Tutor (dayHH-lab)
+
+// Remember to pipe the output of this program into a file
+// $ ./chessboard > chessboard.bmp
+// $ eog chessboard.bmp &
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <math.h>
+
+#define BOARD_SIZE   512
+#define SQUARE_SIZE  (512 / 8)
+
+// For writing BMP
+#define PIXEL_START 26
+#define PIXEL_BYTES 3
+#define PIXEL_ALIGN 4
+#define PIXEL_BITS  24
+#define HEADER_SIZE 12
+#define MAX_ITERATIONS 256
+
+typedef struct _complex
+{
+    double re;
+    double im;
+}complex;
+
+typedef struct _pixel {
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+} pixel;
+
+void drawChessboard(pixel pixels[BOARD_SIZE][BOARD_SIZE]);
+
+// Write an image to output
+void writeImage(int output, pixel pixels[BOARD_SIZE][BOARD_SIZE]);
+
+int main(int argc, char *argv[]) {
+    // Pixel 2-dimensional array
+    // remember, it's pixels[y][x]
+    pixel pixels[BOARD_SIZE][BOARD_SIZE];
+
+    drawChessboard(pixels);
+
+    // Write the image to output
+    writeImage(STDOUT_FILENO, pixels);
+
+    return EXIT_SUCCESS;
+}
+
+static complex multiply(complex a, complex b)
+{
+    complex prod;
+    
+    prod.re = a.re*b.re - a.im*b.im;
+    prod.im = a.im*b.re + a.re*b.im;
+    
+    return prod;
+}
+
+static complex add(complex a, complex b) {
+    
+    complex c;
+    
+    c.re = a.re + b.re;
+    c.im = a.im + b.im;
+    
+    return c;
+}
+
+static void print(complex c)
+{
+    printf("num is %f + %fi with mod %f\n", c.re, c.im, sqrt(c.re*c.re + c.im*c.im));
+}
+
+int escapeSteps(complex c) {
+    
+    //Assign steps taken to 0
+    int steps = 0;
+    
+    //complex number to be used for f(z)
+    complex z;
+    
+    //Initialize it to zero
+    z.re = 0;
+    z.im = 0;
+    
+    //modulus
+    int mod = 0;
+    //counter variable
+    int i = 0;
+    while (steps < MAX_ITERATIONS &&  (int)(sqrt(z.re*z.re + z.im*z.im)) < 2)
+    {
+        z = multiply(z, z);
+        z = add(z, c);
+        steps++;
+    }
+    
+    //printf("Complex number is %f + %fi and steps is %d\n", z.re, z.im, steps);
+    
+    return steps;
+}
+
+// Draws a chessboard
+void drawChessboard(pixel pixels[BOARD_SIZE][BOARD_SIZE]) {
+    
+    int counter = 0;
+    int i = 0;
+    
+        //char a[255][255];
+    complex num;
+    num.re = 0;
+    num.im = 0;
+    //int i = 0;
+    while (i < 512)
+    {
+        int j = 0;
+        num.re = (double)(512 - i)/100.0;
+        while (j < 512)
+        {
+            num.im = (double)(512 - j)/100.0;
+            //printf("i = %f j = %f", num.re, num.im);
+            if (escapeSteps(num) == MAX_ITERATIONS)
+            {
+                pixels[i][j].red = 0;
+                pixels[i][j].blue = 0;
+                pixels[i][j].green = 0;
+            }
+            else
+            {
+                pixels[i][j].red = 255;
+                pixels[i][j].blue = 255;
+                pixels[i][j].green = 255;
+            }
+            j++;
+            
+        }
+        
+        i++;
+        
+        //num.re = num.re + 1.0;
+    }
+    
+
+}
+
+// Writes the pixels as a BMP file using the specification from
+// https://en.wikipedia.org/wiki/BMP_file_format
+void writeImage(int output, pixel pixels[BOARD_SIZE][BOARD_SIZE]) {
+    // Initial BM bytes
+    write(output, "BM", 2);
+
+    // File size
+    unsigned int rowSize = BOARD_SIZE * PIXEL_BYTES;
+    unsigned int rowPadding = 0;
+    if (rowSize % PIXEL_ALIGN != 0) {
+        // Padd pixel to align properly
+        rowPadding = PIXEL_ALIGN - (rowSize % PIXEL_ALIGN);
+        rowSize += rowPadding;
+    }
+
+    unsigned int fileSize = PIXEL_START + (rowSize * BOARD_SIZE);
+    write(output, (char *)&fileSize, sizeof(fileSize));
+
+    // 4 reserved bytes
+    write(output, "\0\0\0\0", 4);
+
+    // start of pixel data
+    // pixels start immediately after header
+    unsigned int pixelStart = PIXEL_START;
+    write(output, (char *)&pixelStart, sizeof(pixelStart));
+
+    // Size of header
+    unsigned int headerSize = HEADER_SIZE;
+    write(output, (char *)&headerSize, sizeof(headerSize));
+
+    // Image width and height
+    unsigned short size = BOARD_SIZE;
+    write(output, (char *)&size, sizeof(size));
+    write(output, (char *)&size, sizeof(size));
+
+    // Number of image planes (1)
+    unsigned short planes = 1;
+    write(output, (char *)&planes, sizeof(planes));
+
+    // Number of bits per pixel (24)
+    unsigned short bitsPerPixel = PIXEL_BITS;
+    write(output, (char *)&bitsPerPixel, sizeof(bitsPerPixel));
+
+    // Write each of the pixels
+    unsigned int padding = 0x01234567;
+    int y = 0;
+    while (y < BOARD_SIZE) {
+        int x = 0;
+        while (x < BOARD_SIZE) {
+            // Write the blue, green, then red pixels
+            pixel pixel = pixels[y][x];
+            write(output, &(pixel.blue), sizeof(pixel.blue));
+            write(output, &(pixel.green), sizeof(pixel.green));
+            write(output, &(pixel.red), sizeof(pixel.red));
+            x++;
+        }
+
+        // Write the row padding bytes
+        write(output, (char *)&padding, rowPadding);
+        y++;
+    }
+}
