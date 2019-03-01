@@ -1,23 +1,12 @@
-// Assignment 1 Mandelbrot: Mandelbrot generation functions
+// Mandelbrot generation functions
 // mandelbrot.h
-//
-// Don't change this file
 //
 // You can compile the full server with the command
 // dcc -o mandelbrotServer server.c mandelbrot.c pixelColor.c
-//
-// Version 1.0.1: Fix issues with spacing and indentation.
-// Version 1.0.0: Assignment released.
-
-
-#ifndef _MANDELBROT_H_
-#define _MANDELBROT_H_
+// However, server.c files has to be created first.
 
 // Size of each image
-//
 // Each tile should be TILE_SIZE pixels wide and TILE_SIZE pixels tall.
-//
-// Make sure this value is unchanged when you submit.
 #define TILE_SIZE 512
 
 // Escape Steps
@@ -27,8 +16,6 @@
 //
 // Any number that is assumed to be in the mandelbrot set has NO_ESCAPE
 // number of steps.
-//
-// Make sure this value is unchanged when you submit.
 #define MAX_STEPS 256
 #define NO_ESCAPE -1
 
@@ -48,16 +35,18 @@ struct complex {
     double im;
 };
 
-// Functions you need to implement:
+// To create the mandelbrot set calling server.c functions
 void serveMandelbrot(
     struct pixel pixels[TILE_SIZE][TILE_SIZE],
     char *requestPath
 );
+
+// Create the Mandelbrot pattern.
 void drawMandelbrot(
     struct pixel pixels[TILE_SIZE][TILE_SIZE],
     struct complex center,
     int z
 );
-int escapeSteps(struct complex c);
 
-#endif // !defined(_MANDELBROT_H_)
+// Count the number of steps for c to escape the mandelbrot set.
+int escapeSteps(struct complex c);
