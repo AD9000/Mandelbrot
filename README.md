@@ -6,6 +6,7 @@ The function escapeSteps() is used to calculate whether a point exists in the ma
 The function drawMandelbrot() is then used to call the functions in server.c which then converts the set into a 512 x 512 pixel bmp file. A range of bmp files are used to create a coherent image on the screen.
 
 The pixelColor.h and pixelColor.c files are used to set the colors of the mandelbrot set.
+By setting the value of zoom variable, the picture generated can be zoomed in or out.
 
 ## Other Files:
 1. chessMandel.c is used to create a primitive version of the mandelbrot set with white and black colors only.
