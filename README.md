@@ -1,4 +1,4 @@
-# Mandelbrot
+# Mandelbrot Set
 ## Description:
 Creating a mandelbrot pattern as output:
 
